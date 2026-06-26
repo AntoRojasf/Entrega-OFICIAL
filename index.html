@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>El tiempo que nos queda · Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Karla:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --crema:      #F5EFE0;
+            --crema-osc:  #EDE4CC;
+            --cafe:       #3B2A1A;
+            --cafe-med:   #6B4C2A;
+            --terracota:  #C4623A;
+            --musgo:      #5C6B3A;
+            --musgo-claro:#8A9E5A;
+            --arena:      #C8A97A;
+            --rule:       #D8CBA8;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Karla', sans-serif;
+            background: var(--crema);
+            color: var(--cafe);
+            min-height: 100vh;
+        }
+
+        /* ── NAV FIJA ────────────────────────────── */
+        nav#top-nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: var(--cafe);
+            display: flex;
+            align-items: center;
+            padding: 0 1.5rem;
+            height: 56px;
+            overflow-x: auto;
+            white-space: nowrap;
+            border-bottom: 1px solid var(--cafe-med);
+        }
+        nav#top-nav .nav-title {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-size: 0.95rem;
+            color: var(--arena);
+            margin-right: 2rem;
+            flex-shrink: 0;
+        }
+        nav#top-nav a {
+            color: var(--crema);
+            text-decoration: none;
+            font-size: 0.78rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 0.5rem 1rem;
+            border-radius: 2px;
+            transition: background 0.2s, color 0.2s;
+            flex-shrink: 0;
+        }
+        nav#top-nav a:hover,
+        nav#top-nav a.active {
+            background: var(--terracota);
+            color: var(--crema);
+        }
+
+        /* ── HERO ────────────────────────────────── */
+        header#hero {
+            padding: 4rem 1.5rem 3rem;
+            text-align: center;
+            background: var(--cafe);
+            color: var(--crema);
+        }
+        header#hero h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(1.8rem, 5vw, 3rem);
+            font-weight: 700;
+            line-height: 1.15;
+            max-width: 680px;
+            margin: 0 auto 1rem;
+        }
+        header#hero h1 em { color: var(--terracota); font-style: italic; }
+        header#hero p {
+            font-size: 0.95rem;
+            font-weight: 300;
+            opacity: 0.8;
+            max-width: 480px;
+            margin: 0 auto;
+            line-height: 1.7;
+        }
+
+        /* ── LAYOUT GENERAL ──────────────────────── */
+        main { max-width: 880px; margin: 0 auto; padding: 0 1.5rem; }
+
+        section.panel {
+            padding: 3.5rem 0;
+            border-bottom: 1px solid var(--rule);
+        }
+        section.panel:last-of-type { border-bottom: none; }
+
+        .panel-eyebrow {
+            font-size: 0.72rem;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--musgo);
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .panel-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(1.4rem, 3.5vw, 2.1rem);
+            font-weight: 700;
+            margin-bottom: 0.6rem;
+            color: var(--cafe);
+        }
+
+        .panel-sub {
+            font-size: 0.92rem;
+            color: var(--cafe-med);
+            font-weight: 300;
+            line-height: 1.65;
+            margin-bottom: 2.2rem;
+            max-width: 620px;
+        }
+
+        /* ── STAT STRIP ──────────────────────────── */
+        .stat-strip {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0;
+            border: 1px solid var(--rule);
+            margin-bottom: 2.5rem;
+        }
+        .stat-cell {
+            padding: 1.4rem 1.1rem;
+            border-right: 1px solid var(--rule);
+        }
+        .stat-cell:last-child { border-right: none; }
+        .stat-num {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(1.6rem, 4vw, 2.2rem);
+            font-weight: 700;
+            color: var(--terracota);
+            line-height: 1;
+            display: block;
+        }
+        .stat-unit {
+            font-size: 0.72rem;
+            color: var(--cafe-med);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-top: 0.3rem;
+        }
+        .stat-desc {
+            font-size: 0.78rem;
+            color: var(--cafe-med);
+            margin-top: 0.5rem;
+            line-height: 1.4;
+        }
+
+        @media (max-width: 680px) {
+            .stat-strip { grid-template-columns: 1fr; }
+            .stat-cell { border-right: none; border-bottom: 1px solid var(--rule); }
+            .stat-cell:last-child { border-bottom: none; }
+        }
+
+        /* ── RANKING DE PAISES ──────────────────── */
+        .ranking-wrap { margin-bottom: 1rem; }
+        .ranking-row {
+            display: grid;
+            grid-template-columns: 110px 1fr 50px;
+            align-items: center;
+            gap: 10px;
+            padding: 0.4rem 0;
+            border-bottom: 1px solid var(--crema-osc);
+        }
+        .ranking-row.highlight .r-name { color: var(--terracota); font-weight: 700; }
+        .r-name { font-size: 0.82rem; color: var(--cafe-med); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .r-bar-wrap { height: 7px; background: var(--crema-osc); border-radius: 1px; overflow: hidden; }
+        .r-bar-fill { height: 100%; background: var(--musgo); border-radius: 1px; }
+        .r-val { font-family: 'Playfair Display', serif; font-size: 0.82rem; text-align: right; color: var(--cafe); }
+
+        /* ── FORMULARIO (sección 2) ─────────────── */
+        .form-card {
+            background: var(--cafe);
+            color: var(--crema);
+            padding: 2.5rem;
+            border-radius: 4px;
+        }
+        @media (max-width: 600px) { .form-card { padding: 1.75rem; } }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem 2rem;
+        }
+        @media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } }
+
+        .campo label {
+            display: block;
+            font-size: 0.72rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--arena);
+            font-weight: 700;
+            margin-bottom: 0.4rem;
+        }
+        .campo input, .campo select {
+            width: 100%;
+            background: transparent;
+            border: none;
+            border-bottom: 1.5px solid var(--cafe-med);
+            padding: 0.5rem 0;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.15rem;
+            color: var(--crema);
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+            border-radius: 0;
+        }
+        .campo select {
+            cursor: pointer;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23C8A97A' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.4rem center;
+        }
+        .campo select option { color: #000; }
+        .campo input:focus, .campo select:focus { border-color: var(--terracota); }
+
+        .campo-aviso {
+            font-size: 0.74rem;
+            color: var(--amber, #E0A458);
+            margin-top: 0.4rem;
+            line-height: 1.4;
+            display: none;
+        }
+        .campo-aviso.visible { display: block; }
+
+        /* ── BUSCADOR DE PAIS ────────────────────── */
+        .pais-buscador { position: relative; }
+        .pais-buscador input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            border-bottom: 1.5px solid var(--cafe-med);
+            padding: 0.5rem 0;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.15rem;
+            color: var(--crema);
+            outline: none;
+        }
+        .pais-buscador input::placeholder { color: var(--cafe-med); font-style: italic; }
+        .pais-buscador input:focus { border-color: var(--terracota); }
+        .pais-lista {
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            right: 0;
+            background: var(--crema);
+            border: 1px solid var(--arena);
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 50;
+            display: none;
+        }
+        .pais-lista.visible { display: block; }
+        .pais-opcion {
+            padding: 0.55rem 0.8rem;
+            font-size: 0.88rem;
+            color: var(--cafe);
+            cursor: pointer;
+        }
+        .pais-opcion:hover,
+        .pais-opcion.activa { background: var(--terracota); color: var(--crema); }
+        .pais-opcion mark {
+            background: none;
+            color: var(--terracota);
+            font-weight: 700;
+        }
+        .pais-opcion:hover mark, .pais-opcion.activa mark { color: var(--crema); }
+        .pais-sin-resultados {
+            padding: 0.55rem 0.8rem;
+            font-size: 0.82rem;
+            color: var(--cafe-med);
+            font-style: italic;
+        }
+
+        .form-section-label {
+            font-size: 0.78rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--musgo-claro);
+            font-weight: 700;
+            margin: 2rem 0 1rem;
+        }
+        .form-section-label:first-child { margin-top: 0; }
+
+        #error-msg {
+            color: var(--terracota);
+            font-size: 0.85rem;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .btn-calcular {
+            width: 100%;
+            margin-top: 2rem;
+            background: var(--terracota);
+            color: var(--crema);
+            font-family: 'Karla', sans-serif;
+            font-size: 0.88rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            font-weight: 700;
+            padding: 1rem;
+            border: none;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-calcular:hover { background: var(--musgo); }
+
+        /* ── RESULTADO PERSONAL ─────────────────── */
+        #resultado-personal { display: none; margin-top: 2.5rem; }
+        #resultado-personal.visible { display: block; }
+
+        .resultado-card {
+            background: var(--crema-osc);
+            padding: 2.5rem;
+            text-align: center;
+            border-radius: 4px;
+        }
+        .etiqueta-res {
+            font-size: 0.72rem;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--musgo);
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        .nombre-querido {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            color: var(--cafe-med);
+            font-size: clamp(0.95rem, 2.5vw, 1.2rem);
+            margin-bottom: 0.3rem;
+        }
+        .numero-grande {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            color: var(--terracota);
+            font-size: clamp(3.5rem, 14vw, 6rem);
+            line-height: 1;
+        }
+        .numero-label {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-size: clamp(1rem, 2.5vw, 1.25rem);
+            color: var(--cafe-med);
+            margin-bottom: 2rem;
+        }
+
+        #bloques-wrap { max-width: 540px; margin: 0 auto 1.5rem; text-align: left; }
+        #bloques-label {
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--cafe-med);
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+        }
+        #bloques-svg { width: 100%; display: block; }
+
+        .reflexion {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-size: clamp(0.9rem, 2.2vw, 1.05rem);
+            color: var(--cafe-med);
+            line-height: 1.8;
+            max-width: 480px;
+            margin: 1.5rem auto 0;
+        }
+
+        .uso-tiempo-bloque {
+            margin-top: 3rem;
+            padding-top: 2.5rem;
+            border-top: 1px solid var(--rule);
+        }
+        .uso-tiempo-titulo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--cafe);
+            margin-bottom: 0.3rem;
+        }
+        .uso-tiempo-sub {
+            font-size: 0.85rem;
+            color: var(--cafe-med);
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+        svg.svg-tiempo-personal { width: 100%; display: block; margin-bottom: 1.25rem; }
+        .leyenda-personal {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem 1.75rem;
+        }
+        .leyenda-personal .ley-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.82rem; color: var(--cafe-med); }
+        .leyenda-personal .ley-color { width: 11px; height: 11px; flex-shrink: 0; border-radius: 2px; }
+        .uso-tiempo-vacio {
+            font-size: 0.85rem;
+            color: var(--cafe-med);
+            font-style: italic;
+        }
+
+        /* ── DISTRIBUCION DE TIEMPO (panel 3) ────── */
+        .compare-select {
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+        .pais-chip {
+            font-size: 0.78rem;
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--musgo);
+            color: var(--musgo);
+            background: transparent;
+            cursor: pointer;
+            border-radius: 20px;
+            transition: all 0.2s;
+        }
+        .pais-chip.active { background: var(--musgo); color: var(--crema); }
+
+        .tiempo-bloque-label {
+            font-size: 0.72rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--cafe-med);
+            margin: 1.2rem 0 0.4rem;
+        }
+        .tiempo-bloque-pais {
+            font-family: 'Playfair Display', serif;
+            font-size: 1rem;
+            color: var(--cafe);
+            margin-bottom: 0.3rem;
+        }
+        svg.svg-tiempo { width: 100%; display: block; margin-bottom: 0.5rem; }
+
+        .ocio-row {
+            display: grid;
+            grid-template-columns: 130px 1fr 60px;
+            align-items: center;
+            gap: 14px;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--crema-osc);
+        }
+        .ocio-pais {
+            font-family: 'Playfair Display', serif;
+            font-size: 0.95rem;
+            color: var(--cafe);
+        }
+        .ocio-bar-wrap {
+            height: 14px;
+            background: var(--crema-osc);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .ocio-bar-fill {
+            height: 100%;
+            background: var(--musgo);
+            border-radius: 2px;
+            transition: width 0.3s;
+        }
+        .ocio-horas {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--terracota);
+            text-align: right;
+        }
+
+        .leyenda {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem 1.75rem;
+            margin: 1.5rem 0 0;
+        }
+        .ley-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; color: var(--cafe-med); }
+        .ley-color { width: 11px; height: 11px; flex-shrink: 0; border-radius: 2px; }
+
+        /* ── FUENTES ─────────────────────────────── */
+        .fuentes-list {
+            font-size: 0.85rem;
+            line-height: 1.9;
+            color: var(--cafe-med);
+        }
+        .fuentes-list strong { color: var(--cafe); }
+        .nota-metodologia {
+            background: var(--crema-osc);
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            font-size: 0.82rem;
+            line-height: 1.7;
+            color: var(--cafe-med);
+        }
+
+        footer.pie {
+            text-align: center;
+            padding: 2.5rem 1.5rem;
+            font-size: 0.78rem;
+            color: var(--arena);
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ═══════════ NAV ═══════════ -->
+<nav id="top-nav">
+    <span class="nav-title">El tiempo que nos queda</span>
+    <a href="#tu-calculo">Tu cálculo</a>
+    <a href="#panorama">Panorama general</a>
+    <a href="#distribucion">Comparar países</a>
+    <a href="#fuentes">Fuentes</a>
+</nav>
+
+<!-- ═══════════ HERO ═══════════ -->
+<header id="hero">
+    <h1>¿Cuántas veces más verás a las personas que <em>más amas</em>?</h1>
+    <p>Un dashboard construido con datos de la OCDE y el Banco Mundial sobre el uso del tiempo y la esperanza de vida.</p>
+</header>
+
+<main>
+
+    <!-- ═══════════ PANEL 1: TU CALCULO ═══════════ -->
+    <section class="panel" id="tu-calculo">
+        <div class="panel-eyebrow">Sección personal</div>
+        <h2 class="panel-title">Calcula tu propio caso</h2>
+        <p class="panel-sub">Ingresa tus datos y los de alguien importante para ti. Vamos a estimar cuántos encuentros más tendrán, según la esperanza de vida de su país.</p>
+
+        <div class="form-card">
+            <div class="form-section-label">Sobre ti</div>
+            <div class="form-grid">
+                <div class="campo">
+                    <label>Tu edad</label>
+                    <input type="number" id="tu-edad" min="1" max="100" placeholder="ej. 25" />
+                </div>
+                <div class="campo">
+                    <label>Tu país</label>
+                    <div class="pais-buscador">
+                        <input type="text" id="tu-pais-input" placeholder="Escribe para buscar..." autocomplete="off" />
+                        <input type="hidden" id="tu-pais" />
+                        <div class="pais-lista" id="tu-pais-lista"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section-label">Sobre esa persona</div>
+            <div class="form-grid">
+                <div class="campo">
+                    <label>¿Quién es?</label>
+                    <select id="tipo-querido">
+                        <option value="">— Selecciona —</option>
+                        <option value="madre">Mi madre</option>
+                        <option value="padre">Mi padre</option>
+                        <option value="abuela/o">Mi abuela/o</option>
+                        <option value="mejor amigo/a">Mi mejor amigo/a</option>
+                        <option value="pareja">Mi pareja</option>
+                    </select>
+                </div>
+                <div class="campo">
+                    <label>Su país (si es distinto al tuyo)</label>
+                    <div class="pais-buscador">
+                        <input type="text" id="pais-querido-input" placeholder="Mismo país que yo..." autocomplete="off" />
+                        <input type="hidden" id="pais-querido" />
+                        <div class="pais-lista" id="pais-querido-lista"></div>
+                    </div>
+                </div>
+                <div class="campo">
+                    <label>Su edad</label>
+                    <input type="number" id="edad-querido" min="1" max="100" placeholder="ej. 55" />
+                    <div class="campo-aviso" id="aviso-edad"></div>
+                </div>
+                <div class="campo">
+                    <label>¿Con qué frecuencia se ven?</label>
+                    <select id="frecuencia">
+                        <option value="">— Selecciona —</option>
+                        <option value="365">A diario</option>
+                        <option value="52">Una vez a la semana</option>
+                        <option value="24">Dos veces al mes</option>
+                        <option value="12">Una vez al mes</option>
+                        <option value="4">Cada tres meses</option>
+                        <option value="2">Dos veces al año</option>
+                        <option value="1">Una vez al año</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="error-msg">Por favor completa todos los campos antes de continuar.</div>
+            <button class="btn-calcular" onclick="calcular()">Calcular encuentros restantes</button>
+        </div>
+
+        <div id="resultado-personal">
+            <div class="resultado-card">
+                <p class="etiqueta-res">Encuentros estimados que te quedan con</p>
+                <p class="nombre-querido" id="res-nombre">—</p>
+                <div class="numero-grande" id="res-numero">—</div>
+                <div class="numero-label" id="res-label">veces más</div>
+
+                <div id="bloques-wrap">
+                    <div id="bloques-label">
+                        <span id="label-pasados"></span>
+                        <span id="label-quedan"></span>
+                    </div>
+                    <svg id="bloques-svg" viewBox="0 0 560 120" xmlns="http://www.w3.org/2000/svg"></svg>
+                </div>
+
+                <p class="reflexion" id="res-reflexion">—</p>
+            </div>
+
+            <div class="uso-tiempo-bloque" id="uso-tiempo-bloque"></div>
+        </div>
+    </section>
+
+    <!-- ═══════════ PANEL 2: PANORAMA GENERAL ═══════════ -->
+    <section class="panel" id="panorama">
+        <div class="panel-eyebrow">Panorama general</div>
+        <h2 class="panel-title">Lo que dicen los datos, en general</h2>
+        <p class="panel-sub">Ahora que ya viste tu caso, esto es lo que muestran los datos en promedio entre los países disponibles en la base OCDE.</p>
+
+        <div class="stat-strip" id="stat-strip-general"></div>
+
+        <div class="panel-eyebrow" style="margin-top:2.5rem">Ranking</div>
+        <h3 style="font-family:'Playfair Display',serif; font-size:1.1rem; margin-bottom:1.2rem; color:var(--cafe)">Minutos de ocio diario por país</h3>
+        <div class="ranking-wrap" id="ranking-ocio"></div>
+    </section>
+
+    <!-- ═══════════ PANEL 3: DISTRIBUCION DE TIEMPO ═══════════ -->
+    <section class="panel" id="distribucion">
+        <div class="panel-eyebrow">Uso del tiempo</div>
+        <h2 class="panel-title">Cuánto ocio queda, según el país</h2>
+        <p class="panel-sub">De las 24 horas del día, esto es lo que sobra para el ocio en cada país. Elige hasta 4 para comparar.</p>
+
+        <div class="compare-select" id="compare-chips"></div>
+
+        <div id="compare-output"></div>
+    </section>
+
+    <!-- ═══════════ PANEL 4: FUENTES ═══════════ -->
+    <section class="panel" id="fuentes">
+        <div class="panel-eyebrow">Metodología</div>
+        <h2 class="panel-title">Fuentes y cómo se calculó</h2>
+
+        <div class="fuentes-list">
+            <strong>OCDE Time Use Database:</strong> minutos por día dedicados a trabajo remunerado, trabajo no remunerado, cuidado personal y ocio, promedio poblacional por país.<br><br>
+            <strong>Banco Mundial:</strong> indicador SP.DYN.LE00.IN, esperanza de vida al nacer (2022), por país.
+        </div>
+
+        <div class="nota-metodologia">
+            <strong>¿Cómo se calculan los encuentros?</strong><br>
+            (Esperanza de vida del país del ser querido, menos su edad actual) multiplicado por la frecuencia anual de encuentros.<br><br>
+            Es una estimación estadística basada en promedios poblacionales, no una predicción individual. La esperanza de vida real de una persona depende de muchos factores que estos datos no capturan, como genética, acceso a salud o estilo de vida. El número busca generar reflexión, no certeza.
+        </div>
+    </section>
+
+</main>
+
+<footer class="pie">Proyecto académico · Visualización de datos con SVG y JavaScript · 2026</footer>
+
+<script>
+// ── DATOS ────────────────────────────────────────────────────────────────
+const DATOS = {
+  "Australia":      { le: 83.2, paid: 238, unpaid: 243, personal: 657, leisure: 281 },
+  "Austria":        { le: 81.3, paid: 266, unpaid: 188, personal: 668, leisure: 307 },
+  "Bélgica":        { le: 81.7, paid: 236, unpaid: 192, personal: 664, leisure: 339 },
+  "Canadá":         { le: 81.1, paid: 337, unpaid: 205, personal: 656, leisure: 211 },
+  "Dinamarca":      { le: 81.3, paid: 225, unpaid: 217, personal: 659, leisure: 329 },
+  "Estonia":        { le: 77.8, paid: 293, unpaid: 174, personal: 654, leisure: 301 },
+  "Finlandia":      { le: 81.2, paid: 240, unpaid: 186, personal: 645, leisure: 330 },
+  "Francia":        { le: 82.1, paid: 204, unpaid: 181, personal: 752, leisure: 294 },
+  "Alemania":       { le: 80.6, paid: 244, unpaid: 192, personal: 658, leisure: 341 },
+  "Grecia":         { le: 80.8, paid: 230, unpaid: 184, personal: 685, leisure: 335 },
+  "Hungría":        { le: 75.9, paid: 238, unpaid: 229, personal: 683, leisure: 281 },
+  "Irlanda":        { le: 82.5, paid: 268, unpaid: 210, personal: 609, leisure: 312 },
+  "Italia":         { le: 82.7, paid: 177, unpaid: 219, personal: 708, leisure: 323 },
+  "Japón":          { le: 84.0, paid: 368, unpaid: 125, personal: 640, leisure: 269 },
+  "Corea del Sur":  { le: 82.7, paid: 344, unpaid: 132, personal: 678, leisure: 258 },
+  "Letonia":        { le: 74.3, paid: 330, unpaid: 196, personal: 641, leisure: 269 },
+  "Lituania":       { le: 75.6, paid: 315, unpaid: 224, personal: 646, leisure: 247 },
+  "Luxemburgo":     { le: 82.9, paid: 285, unpaid: 179, personal: 686, leisure: 276 },
+  "México":         { le: 74.0, paid: 349, unpaid: 256, personal: 606, leisure: 203 },
+  "Países Bajos":   { le: 81.6, paid: 243, unpaid: 186, personal: 682, leisure: 315 },
+  "Nueva Zelanda":  { le: 82.2, paid: 270, unpaid: 204, personal: 648, leisure: 301 },
+  "Noruega":        { le: 82.5, paid: 275, unpaid: 186, personal: 613, leisure: 354 },
+  "Polonia":        { le: 77.2, paid: 214, unpaid: 248, personal: 682, leisure: 261 },
+  "Portugal":       { le: 81.6, paid: 295, unpaid: 223, personal: 676, leisure: 241 },
+  "Eslovenia":      { le: 81.3, paid: 265, unpaid: 231, personal: 628, leisure: 311 },
+  "España":         { le: 83.1, paid: 202, unpaid: 217, personal: 692, leisure: 316 },
+  "Suecia":         { le: 83.1, paid: 293, unpaid: 196, personal: 622, leisure: 321 },
+  "Turquía":        { le: 77.6, paid: 246, unpaid: 186, personal: 682, leisure: 286 },
+  "Reino Unido":    { le: 81.0, paid: 262, unpaid: 195, personal: 645, leisure: 306 },
+  "Estados Unidos": { le: 77.4, paid: 278, unpaid: 197, personal: 664, leisure: 280 },
+  "Bulgaria":       { le: 74.2, paid: 282, unpaid: 189, personal: 723, leisure: 241 },
+  "China":          { le: 78.2, paid: 340, unpaid: 164, personal: 694, leisure: 228 },
+  "Croacia":        { le: 77.6, paid: 321, unpaid: 203, personal: 655, leisure: 251 },
+  "India":          { le: 71.7, paid: 295, unpaid: 191, personal: 687, leisure: 254 },
+  "Sudáfrica":      { le: 65.5, paid: 241, unpaid: 182, personal: 695, leisure: 306 },
+  "Chile":          { le: 79.2, paid: null, unpaid: null, personal: null, leisure: null },
+  "Argentina":      { le: 75.8, paid: null, unpaid: null, personal: null, leisure: null },
+  "Brasil":         { le: 74.9, paid: null, unpaid: null, personal: null, leisure: null },
+  "Colombia":       { le: 76.5, paid: null, unpaid: null, personal: null, leisure: null },
+  "Perú":           { le: 76.8, paid: null, unpaid: null, personal: null, leisure: null }
+};
+
+const PAISES = Object.keys(DATOS).sort();
+const PAISES_CON_OCDE = PAISES.filter(p => DATOS[p].leisure !== null);
+
+// ── NAV ACTIVA AL HACER SCROLL ──────────────────────────────────────────
+const navLinks = document.querySelectorAll("#top-nav a");
+const sections = document.querySelectorAll("section.panel");
+function actualizarNavActiva() {
+    let actual = "";
+    sections.forEach(sec => {
+        const rect = sec.getBoundingClientRect();
+        if (rect.top <= 120 && rect.bottom > 120) actual = sec.id;
+    });
+    navLinks.forEach(a => {
+        a.classList.toggle("active", a.getAttribute("href") === "#" + actual);
+    });
+}
+window.addEventListener("scroll", actualizarNavActiva);
+actualizarNavActiva();
+
+// ── PANEL 1: STATS GENERALES ────────────────────────────────────────────
+function promedio(arr) { return arr.reduce((a,b)=>a+b,0) / arr.length; }
+
+function construirPanoramaGeneral() {
+    const leisureVals = PAISES_CON_OCDE.map(p => DATOS[p].leisure);
+    const leVals = PAISES.map(p => DATOS[p].le).filter(v => v != null);
+
+    const avgLeisure = promedio(leisureVals);
+    const avgLe = promedio(leVals);
+
+    // años de vida que representa el ocio acumulado, si se mantiene el promedio diario toda la vida
+    const aniosOcio = (avgLeisure / 1440) * avgLe;
+    const pctOcio = Math.round((avgLeisure / 1440) * 100);
+
+    const maxLeisurePais = PAISES_CON_OCDE.reduce((a,b) => DATOS[a].leisure > DATOS[b].leisure ? a : b);
+
+    document.getElementById("stat-strip-general").innerHTML = `
+        <div class="stat-cell">
+            <span class="stat-num">${aniosOcio.toFixed(1)}</span>
+            <div class="stat-unit">años de tu vida</div>
+            <div class="stat-desc">Serán de ocio, si vives el promedio OCDE y mantienes ese ritmo diario. Un ${pctOcio}% del total</div>
+        </div>
+        <div class="stat-cell">
+            <span class="stat-num">${avgLe.toFixed(1)}</span>
+            <div class="stat-unit">años</div>
+            <div class="stat-desc">Esperanza de vida promedio entre ${PAISES.length} países</div>
+        </div>
+        <div class="stat-cell">
+            <span class="stat-num">${maxLeisurePais}</span>
+            <div class="stat-unit">${(DATOS[maxLeisurePais].leisure/60).toFixed(1)} h/día</div>
+            <div class="stat-desc">El país con más tiempo de ocio diario</div>
+        </div>
+    `;
+
+    // Ranking
+    const sorted = [...PAISES_CON_OCDE].sort((a,b) => DATOS[b].leisure - DATOS[a].leisure);
+    const max = DATOS[sorted[0]].leisure;
+    document.getElementById("ranking-ocio").innerHTML = sorted.map(p => {
+        const pct = Math.round(DATOS[p].leisure / max * 100);
+        return `<div class="ranking-row">
+            <div class="r-name">${p}</div>
+            <div class="r-bar-wrap"><div class="r-bar-fill" style="width:${pct}%"></div></div>
+            <div class="r-val">${DATOS[p].leisure}</div>
+        </div>`;
+    }).join("");
+}
+construirPanoramaGeneral();
+
+// ── AVISO DE EDAD (límite suave) ────────────────────────────────────────
+function chequearAvisoEdad() {
+    const edadQuerido = parseInt(document.getElementById("edad-querido").value);
+    const paisQuerido = document.getElementById("pais-querido").value || document.getElementById("tu-pais").value;
+    const aviso = document.getElementById("aviso-edad");
+
+    if (!edadQuerido || !paisQuerido || !DATOS[paisQuerido]) {
+        aviso.classList.remove("visible");
+        return;
+    }
+    const le = DATOS[paisQuerido].le;
+    if (le && edadQuerido > le) {
+        aviso.textContent = `La esperanza de vida promedio en ${paisQuerido} es de ${le} años. Esta edad supera ese promedio. El cálculo igual va a funcionar, pero el resultado puede ser cero.`;
+        aviso.classList.add("visible");
+    } else {
+        aviso.classList.remove("visible");
+    }
+}
+document.getElementById("edad-querido").addEventListener("input", chequearAvisoEdad);
+
+// ── BUSCADOR DE PAÍS CON AUTOCOMPLETADO ─────────────────────────────────
+function crearBuscadorPais(inputId, hiddenId, listaId, onSeleccionar) {
+    const input = document.getElementById(inputId);
+    const hidden = document.getElementById(hiddenId);
+    const lista = document.getElementById(listaId);
+    let activaIdx = -1;
+    let opcionesFiltradas = [];
+
+    function resaltar(texto, query) {
+        const idx = texto.toLowerCase().indexOf(query.toLowerCase());
+        if (idx === -1 || !query) return texto;
+        return texto.slice(0, idx) + "<mark>" + texto.slice(idx, idx + query.length) + "</mark>" + texto.slice(idx + query.length);
+    }
+
+    function render(query) {
+        opcionesFiltradas = PAISES.filter(p => p.toLowerCase().includes(query.toLowerCase()));
+        activaIdx = -1;
+        if (opcionesFiltradas.length === 0) {
+            lista.innerHTML = `<div class="pais-sin-resultados">No encontramos ese país en la base de datos.</div>`;
+        } else {
+            lista.innerHTML = opcionesFiltradas.map((p, i) =>
+                `<div class="pais-opcion" data-idx="${i}">${resaltar(p, query)}</div>`
+            ).join("");
+        }
+        lista.classList.add("visible");
+    }
+
+    function seleccionar(pais) {
+        input.value = pais;
+        hidden.value = pais;
+        lista.classList.remove("visible");
+        if (onSeleccionar) onSeleccionar(pais);
+    }
+
+    input.addEventListener("focus", () => render(input.value));
+    input.addEventListener("input", () => {
+        hidden.value = "";
+        render(input.value);
+    });
+    input.addEventListener("keydown", (e) => {
+        const opciones = lista.querySelectorAll(".pais-opcion");
+        if (e.key === "ArrowDown") {
+            e.preventDefault();
+            activaIdx = Math.min(activaIdx + 1, opciones.length - 1);
+        } else if (e.key === "ArrowUp") {
+            e.preventDefault();
+            activaIdx = Math.max(activaIdx - 1, 0);
+        } else if (e.key === "Enter") {
+            e.preventDefault();
+            if (activaIdx >= 0 && opcionesFiltradas[activaIdx]) seleccionar(opcionesFiltradas[activaIdx]);
+            return;
+        } else if (e.key === "Escape") {
+            lista.classList.remove("visible");
+            return;
+        } else {
+            return;
+        }
+        opciones.forEach((o, i) => o.classList.toggle("activa", i === activaIdx));
+        if (opciones[activaIdx]) opciones[activaIdx].scrollIntoView({ block: "nearest" });
+    });
+    lista.addEventListener("click", (e) => {
+        const op = e.target.closest(".pais-opcion");
+        if (op) seleccionar(opcionesFiltradas[parseInt(op.getAttribute("data-idx"))]);
+    });
+    document.addEventListener("click", (e) => {
+        if (!input.contains(e.target) && !lista.contains(e.target)) lista.classList.remove("visible");
+    });
+}
+
+crearBuscadorPais("tu-pais-input", "tu-pais", "tu-pais-lista", chequearAvisoEdad);
+crearBuscadorPais("pais-querido-input", "pais-querido", "pais-querido-lista", chequearAvisoEdad);
+
+// ── CALCULAR ─────────────────────────────────────────────────────────────
+var estado = {};
+
+function calcular() {
+    const tuEdad      = parseInt(document.getElementById("tu-edad").value);
+    const tuPais      = document.getElementById("tu-pais").value;
+    const tipoQuerido = document.getElementById("tipo-querido").value;
+    const edadQuerido = parseInt(document.getElementById("edad-querido").value);
+    const paisQuerido = document.getElementById("pais-querido").value || tuPais;
+    const frecuencia  = parseInt(document.getElementById("frecuencia").value);
+
+    const errorMsg = document.getElementById("error-msg");
+    if (!tuEdad || !tuPais || !tipoQuerido || !edadQuerido || !frecuencia) {
+        errorMsg.style.display = "block";
+        return;
+    }
+    errorMsg.style.display = "none";
+
+    const datosPais = DATOS[paisQuerido] || DATOS[tuPais];
+    const le = datosPais.le || 80;
+
+    const aniosRestantes = Math.max(0, le - edadQuerido);
+    const encuentros = Math.round(aniosRestantes * frecuencia);
+    const encuentrosPasados = Math.round(edadQuerido * frecuencia);
+
+    estado = { tuEdad, tuPais, tipoQuerido, edadQuerido, paisQuerido, frecuencia, le, aniosRestantes, encuentros, encuentrosPasados };
+    mostrarResultado();
+}
+
+function mostrarResultado() {
+    const s = estado;
+    document.getElementById("res-nombre").textContent = "tu " + s.tipoQuerido;
+    document.getElementById("res-numero").textContent = s.encuentros.toLocaleString("es-CL");
+    document.getElementById("res-label").textContent = s.encuentros === 1 ? "vez más" : "veces más";
+
+    let frecTxt;
+    if (s.frecuencia >= 365) frecTxt = "todos los días";
+    else if (s.frecuencia >= 52) frecTxt = "cada semana";
+    else if (s.frecuencia >= 24) frecTxt = "dos veces al mes";
+    else if (s.frecuencia >= 12) frecTxt = "cada mes";
+    else if (s.frecuencia >= 4) frecTxt = "cada tres meses";
+    else if (s.frecuencia >= 2) frecTxt = "dos veces al año";
+    else frecTxt = "una vez al año";
+
+    let textoReflexion;
+    if (s.encuentros === 0) {
+        textoReflexion = `Según la esperanza de vida promedio en ${s.paisQuerido} (${Math.round(s.le)} años), este cálculo da un número muy bajo. Es un promedio estadístico, no una predicción. Muchas personas viven más allá de ese promedio.`;
+    } else {
+        textoReflexion = `Si siguen viéndose ${frecTxt} como hasta ahora, y tu ${s.tipoQuerido} vive hasta los ${Math.round(s.le)} años, el promedio en ${s.paisQuerido}, les quedan aproximadamente ${s.encuentros.toLocaleString("es-CL")} encuentros.`;
+    }
+    document.getElementById("res-reflexion").textContent = textoReflexion;
+
+    mostrarUsoTiempo(s);
+    dibujarBloques(s.encuentros, s.encuentrosPasados);
+    document.getElementById("resultado-personal").classList.add("visible");
+    document.getElementById("resultado-personal").scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+function mostrarUsoTiempo(s) {
+    const contenedor = document.getElementById("uso-tiempo-bloque");
+    const d = DATOS[s.tuPais];
+
+    if (!d || d.leisure === null) {
+        contenedor.innerHTML = `
+            <div class="uso-tiempo-titulo">Así se usa el tiempo, en general</div>
+            <div class="uso-tiempo-vacio">No hay datos de uso del tiempo de la OCDE para ${s.tuPais}. La base disponible cubre principalmente países miembros y algunos socios.</div>
+        `;
+        return;
+    }
+
+    const total = 1440;
+    const cats = [
+        { key: "paid",     nombre: "Trabajo remunerado",    color: "#3B2A1A" },
+        { key: "unpaid",   nombre: "Trabajo no remunerado", color: "#6B4C2A" },
+        { key: "personal", nombre: "Cuidado personal",      color: "#C8A97A" },
+        { key: "leisure",  nombre: "Ocio y tiempo libre",   color: "#5C6B3A" }
+    ];
+
+    let x = 0, barras = "";
+    const ancho = 760;
+    cats.forEach(c => {
+        const min = d[c.key];
+        const w = Math.round((min / total) * ancho);
+        if (w > 0) {
+            barras += `<rect x="${x}" y="0" width="${w}" height="44" fill="${c.color}" />`;
+            if (w > 46) {
+                barras += `<text x="${x + w/2}" y="27" text-anchor="middle" font-size="10" fill="#F5EFE0" font-family="Karla,sans-serif">${(min/60).toFixed(1)}h</text>`;
+            }
+        }
+        x += w;
+    });
+
+    const leyenda = cats.map(c =>
+        `<div class="ley-item"><div class="ley-color" style="background:${c.color}"></div>${c.nombre} (${(d[c.key]/60).toFixed(1)} h)</div>`
+    ).join("");
+
+    contenedor.innerHTML = `
+        <div class="uso-tiempo-titulo">Así se usa el tiempo en ${s.tuPais}, en general</div>
+        <div class="uso-tiempo-sub">Distribución de un día promedio de 24 horas, según la OCDE.</div>
+        <svg class="svg-tiempo-personal" viewBox="0 0 ${ancho} 44" xmlns="http://www.w3.org/2000/svg">${barras}</svg>
+        <div class="leyenda-personal">${leyenda}</div>
+    `;
+}
+
+function dibujarBloques(quedan, pasados) {
+    const svg = document.getElementById("bloques-svg");
+    svg.innerHTML = "";
+
+    const total = quedan + pasados;
+    const escala = total > 500 ? total / 500 : 1;
+    const totalMostrar = Math.min(total, 500) || 1;
+    const quedanMostrar = Math.min(quedan, Math.round(quedan / escala));
+    const pasadosMostrar = totalMostrar - quedanMostrar;
+
+    const cols = 50, size = 8, gap = 2;
+    let x = 0, y = 0;
+
+    for (let i = 0; i < totalMostrar; i++) {
+        const esPasado = i < pasadosMostrar;
+        const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        rect.setAttribute("x", x * (size + gap));
+        rect.setAttribute("y", y * (size + gap));
+        rect.setAttribute("width", size);
+        rect.setAttribute("height", size);
+        rect.setAttribute("fill", esPasado ? "#6B4C2A" : "#C4623A");
+        rect.setAttribute("opacity", esPasado ? "0.35" : "1");
+        svg.appendChild(rect);
+        x++;
+        if (x >= cols) { x = 0; y++; }
+    }
+
+    const alturaTotal = (y + 1) * (size + gap);
+    svg.setAttribute("viewBox", "0 0 " + (cols * (size + gap)) + " " + Math.max(alturaTotal, size+gap));
+
+    document.getElementById("label-pasados").textContent = "■ " + pasados.toLocaleString("es-CL") + " ya vividos";
+    document.getElementById("label-quedan").textContent = quedan.toLocaleString("es-CL") + " por venir ■";
+}
+
+// ── PANEL 3: COMPARADOR DE PAISES ───────────────────────────────────────
+let paisesSeleccionados = ["España", "Japón", "México"];
+
+function construirChips() {
+    const wrap = document.getElementById("compare-chips");
+    wrap.innerHTML = PAISES_CON_OCDE.map(p =>
+        `<button class="pais-chip ${paisesSeleccionados.includes(p) ? 'active' : ''}" data-pais="${p}">${p}</button>`
+    ).join("");
+    wrap.querySelectorAll(".pais-chip").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const p = btn.getAttribute("data-pais");
+            if (paisesSeleccionados.includes(p)) {
+                if (paisesSeleccionados.length > 1) paisesSeleccionados = paisesSeleccionados.filter(x => x !== p);
+            } else if (paisesSeleccionados.length < 4) {
+                paisesSeleccionados.push(p);
+            }
+            construirChips();
+            construirComparador();
+        });
+    });
+}
+
+function construirComparador() {
+    const out = document.getElementById("compare-output");
+    const maxLeisure = Math.max(...PAISES_CON_OCDE.map(p => DATOS[p].leisure));
+
+    out.innerHTML = paisesSeleccionados.map(pais => {
+        const d = DATOS[pais];
+        const pct = Math.round(d.leisure / maxLeisure * 100);
+        const horas = (d.leisure / 60).toFixed(1).replace(".", ",");
+        return `
+            <div class="ocio-row">
+                <div class="ocio-pais">${pais}</div>
+                <div class="ocio-bar-wrap"><div class="ocio-bar-fill" style="width:${pct}%"></div></div>
+                <div class="ocio-horas">${horas} h</div>
+            </div>
+        `;
+    }).join("");
+}
+
+construirChips();
+construirComparador();
+</script>
+</body>
+</html>
